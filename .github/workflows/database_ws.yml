@@ -65,29 +65,39 @@ jobs:
       env:
         PGPASSWORD: postgres
       run: |
+        set -e  # Exit immediately if a command exits with a non-zero status
+
         # Define the root directories to process
-        root_directories=("utils" "ws" "i18n")
-        
+        root_directories=("utils" "ws" "i18n/en_US")
+
+        # Function to execute SQL files and handle errors
+        execute_sql() {
+          local file=$1
+          echo "Executing $file..."
+          if ! psql -h localhost -U postgres -d giswater_test_db -f "$file" 2>&1; then
+            echo "Error executing $file"
+            exit 1
+          fi
+        }
+
         # Process each root directory and its subdirectories
         for root_dir in "${root_directories[@]}"; do
           echo "Processing root directory: $root_dir"
           find "$root_dir" -type f -name "*.sql" | sort | while read -r file; do
-            echo "Executing $file..."
-            psql -h localhost -U postgres -d giswater_test_db -f "$file"
+            execute_sql "$file"
           done
         done
-        
+
         # Define the base updates directory
         updates_dir="updates/36"
-        
+
         # Check if the updates directory exists
         if [ -d "$updates_dir" ]; then
           # Process "utils" and "ws" subdirectories within updates_dir
           find "$updates_dir" -type d -name "utils" -o -name "ws" | sort | while read -r subdir; do
             echo "Processing directory: $subdir"
             find "$subdir" -type f -name "*.sql" | sort | while read -r file; do
-              echo "Executing $file..."
-              psql -h localhost -U postgres -d giswater_test_db -f "$file"
+              execute_sql "$file"
             done
           done
         else
