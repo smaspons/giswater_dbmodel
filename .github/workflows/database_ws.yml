@@ -97,7 +97,7 @@ jobs:
         # Process each root directory and its subdirectories
         for root_dir in "${root_directories[@]}"; do
           echo "Processing root directory: $root_dir"
-          find "$root_dir" -type f -name "*.sql" | sort | while read -r file; do
+          find "$root_dir" -type f -name "*.sql" | sort | grep -v "ud_" | while read -r file; do
             execute_sql "$file"
           done
         done
