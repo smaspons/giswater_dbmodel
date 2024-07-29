@@ -110,7 +110,7 @@ jobs:
           # Process "utils" and "ws" subdirectories within updates_dir
           find "$updates_dir" -type d -name "utils" -o -name "ws" | sort | while read -r subdir; do
             echo "Processing directory: $subdir"
-            find "$subdir" -type f -name "*.sql" | sort | while read -r file; do
+            find "$subdir" -type f -name "*.sql" | sort | grep -v "ud_" | while read -r file; do
               execute_sql "$file"
             done
           done
@@ -132,7 +132,7 @@ jobs:
           # Process "utils" and "ws" subdirectories within updates_dir
           find "$updates_dir" -type d | sort | while read -r subdir; do
             echo "Processing directory: $subdir"
-            find "$subdir" -type f -name "*.sql" | sort | while read -r file; do
+            find "$subdir" -type f -name "*.sql" | sort | grep -v "ud_" | while read -r file; do
               execute_sql "$file"
             done
           done
