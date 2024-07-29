@@ -70,6 +70,9 @@ jobs:
         # Define the root directories to process
         root_directories=("utils" "ws" "i18n/en_US")
 
+        # Set ON_ERROR_STOP to exit on error
+        psql -h localhost -U postgres -d giswater_test_db -c "\set ON_ERROR_STOP on"
+
         # Function to execute SQL files and handle errors
         execute_sql() {
           local file=$1
