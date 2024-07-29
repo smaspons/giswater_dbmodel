@@ -71,15 +71,18 @@ jobs:
         # Define the root directories to process
         root_directories=("utils" "ws" "i18n/en_US")
 
-        # Set ON_ERROR_STOP to exit on error
-        psql -h localhost -U postgres -d giswater_test_db -c "\set ON_ERROR_STOP on"
-
         # Function to execute SQL files and handle errors
         execute_sql() {
           local file=$1
           echo "Executing $file..."
-          # Capture the output of the psql command (both stdout and stderr)
-          output=$(psql -h localhost -U postgres -d giswater_test_db -f "$file" 2>&1)
+            # Check if the file path contains "fct", "ftrg", or "trg"
+            if [[ "$file" != *"fct"* && "$file" != *"ftrg"* && "$file" != *"trg"* ]]; then
+              # If not, include the -v ON_ERROR_STOP=1 option
+              output=$(psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d giswater_test_db -f "$file" 2>&1)
+            else
+              # Otherwise, do not include the option
+              output=$(psql -h localhost -U postgres -d giswater_test_db -f "$file" 2>&1)
+            fi
           echo "Output: $output"
           # Check the exit status of the psql command
           if [ $? -ne 0 ]; then
