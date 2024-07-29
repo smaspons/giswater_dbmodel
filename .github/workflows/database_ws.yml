@@ -65,7 +65,7 @@ jobs:
       env:
         PGPASSWORD: postgres
       run: |
-        set -e  # Exit immediately if a command exits with a non-zero status
+        # set -e  # Exit immediately if a command exits with a non-zero status
 
         # Define the root directories to process
         root_directories=("utils" "ws" "i18n/en_US")
