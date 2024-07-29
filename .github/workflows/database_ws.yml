@@ -16,7 +16,7 @@ jobs:
         ports:
           - 5432:5432
         env:
-          POSTGRES_DB: postgres
+          POSTGRES_DB: giswater_test_db
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         options: >-
@@ -48,6 +48,8 @@ jobs:
 
     - name: Setup PostgreSQL and PostGIS for Linux/macOS/Windows
       uses: nyurik/action-setup-postgis@v2.1
+      with:
+        database: giswater_test_db
 
     - name: Replace variables in SQL files
       run: python .github/workflows/replace_vars.py
@@ -64,7 +66,7 @@ jobs:
           echo "Processing root directory: $root_dir"
           find "$root_dir" -type f -name "*.sql" | sort | while read -r file; do
             echo "Executing $file..."
-            psql -h localhost -U postgres -d postgres -f "$file"
+            psql -h localhost -U postgres -d giswater_test_db -f "$file"
           done
         done
         
@@ -78,7 +80,7 @@ jobs:
             echo "Processing directory: $subdir"
             find "$subdir" -type f -name "*.sql" | sort | while read -r file; do
               echo "Executing $file..."
-              psql -h localhost -U postgres -d postgres -f "$file"
+              psql -h localhost -U postgres -d giswater_test_db -f "$file"
             done
           done
         else
@@ -90,7 +92,7 @@ jobs:
         PGPASSWORD: postgres
       run: |
         # Check the presence of tables
-        tables=$(psql -h localhost -U postgres -d postgres -t -c '\dt')
+        tables=$(psql -h localhost -U postgres -d giswater_test_db -t -c '\dt')
         if [ -z "$tables" ]; then
           echo "No tables found in the database."
           exit 1
@@ -100,7 +102,7 @@ jobs:
         fi
 
         # Check PostGIS version
-        postgis_version=$(psql -h localhost -U postgres -d postgres -t -c "SELECT postgis_full_version();")
+        postgis_version=$(psql -h localhost -U postgres -d giswater_test_db -t -c "SELECT postgis_full_version();")
         if [ -z "$postgis_version" ]; then
           echo "PostGIS extension not found or not installed correctly."
           exit 1
@@ -110,7 +112,7 @@ jobs:
         fi
 
         # Check pgRouting version
-        pgrouting_version=$(psql -h localhost -U postgres -d postgres -t -c "SELECT * FROM pgr_version();")
+        pgrouting_version=$(psql -h localhost -U postgres -d giswater_test_db -t -c "SELECT * FROM pgr_version();")
         if [ -z "$pgrouting_version" ]; then
           echo "pgRouting extension not found or not installed correctly."
           exit 1
