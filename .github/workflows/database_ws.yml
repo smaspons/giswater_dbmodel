@@ -51,12 +51,13 @@ jobs:
       with:
         database: giswater_test_db
     
-    - name: Install pgrouting
+    - name: Install pgrouting & postgis_raster
       env:
         PGPASSWORD: postgres
       run: |
         sudo apt-get install postgresql-14-pgrouting
         psql -h localhost -U postgres -d giswater_test_db -c 'CREATE EXTENSION pgrouting;'
+        psql -h localhost -U postgres -d giswater_test_db -c 'CREATE EXTENSION postgis_raster;'
 
     - name: Replace variables in SQL files
       run: python .github/workflows/replace_vars.py
@@ -78,7 +79,7 @@ jobs:
           local file=$1
           echo "Executing $file..."
           # Capture the output of the psql command (both stdout and stderr)
-          output=$(psql -h localhost -U postgres -d giswater_test_db -v ON_ERROR_STOP=1 -v VERBOSITY=verbose -f "$file" 2>&1)
+          output=$(psql -h localhost -U postgres -d giswater_test_db -f "$file" 2>&1)
           echo "Output: $output"
           # Check the exit status of the psql command
           if [ $? -ne 0 ]; then
