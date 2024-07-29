@@ -77,10 +77,21 @@ jobs:
         execute_sql() {
           local file=$1
           echo "Executing $file..."
-          if ! psql -h localhost -U postgres -d giswater_test_db -f "$file" 2>&1; then
-            echo "Error executing $file"
-            exit 1
+          # Capture the output of the psql command (both stdout and stderr)
+          output=$(psql -h localhost -U postgres -d giswater_test_db -v ON_ERROR_STOP=1 -f "$file" 2>&1)
+          echo "Output: $output"
+          # Check the exit status of the psql command
+          if [ $? -ne 0 ]; then
+              # Print the captured output
+              echo "Error executing $file"
+              echo "Output:"
+              echo "$output"
+              exit 1
           fi
+          # if ! psql -h localhost -U postgres -d giswater_test_db -v ON_ERROR_STOP=1 -f "$file" 2>&1; then
+          #   echo "Error executing $file"
+          #   exit 1
+          # fi
         }
 
         # Process each root directory and its subdirectories
