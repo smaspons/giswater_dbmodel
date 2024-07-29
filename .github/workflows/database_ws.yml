@@ -50,6 +50,11 @@ jobs:
       uses: nyurik/action-setup-postgis@v2.1
       with:
         database: giswater_test_db
+    
+    - name: Install pgrouting
+      run: |
+        sudo apt-get install postgresql-14-pgrouting
+        psql -h localhost -U postgres -d giswater_test_db -c 'CREATE EXTENSION pgrouting;'
 
     - name: Replace variables in SQL files
       run: python .github/workflows/replace_vars.py
