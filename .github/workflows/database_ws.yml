@@ -52,6 +52,8 @@ jobs:
         database: giswater_test_db
     
     - name: Install pgrouting
+      env:
+        PGPASSWORD: postgres
       run: |
         sudo apt-get install postgresql-14-pgrouting
         psql -h localhost -U postgres -d giswater_test_db -c 'CREATE EXTENSION pgrouting;'
