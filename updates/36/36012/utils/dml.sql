@@ -83,6 +83,6 @@ UPDATE config_form_tableview
 	WHERE objectname='v_ui_rpt_cat_result' AND columnname='inp_options';
 UPDATE config_form_tableview
 	SET columnindex=11
-	WHERE objectname='v_ui_rpt_cat_result' AND columnname='rpt_stats';
+	WHERE objectname='v_ui_rpt_cat_result' AND columnname='rpt_stats'
 INSERT INTO config_form_tableview (location_type,project_type,objectname,columnname,columnindex,visible)
 	VALUES ('epa_toolbar','utils','v_ui_rpt_cat_result','addparam',12,false);
