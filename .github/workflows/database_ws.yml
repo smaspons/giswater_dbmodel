@@ -119,7 +119,7 @@ jobs:
         execute_sql "childviews/en_US/ws_schema_model.sql"
 
         # execute lastprocess
-        psql -h localhost -U postgres -d giswater_test_db -c "SELECT ws_36.gw_fct_admin_schema_lastprocess($${"client":{"device":4, "lang":"en_US"}, "data":{"isNewProject":"TRUE", "gwVersion":"3.6.012", "projectType":"WS", "epsg":25831, "descript":"ws_36", "name":"ws_36", "author":"postgres", "date":"29-07-2024"}}$$);"
+        psql -h localhost -U postgres -d giswater_test_db -c "SELECT ws_36.gw_fct_admin_schema_lastprocess('{"client":{"device":4, "lang":"en_US"}, "data":{"isNewProject":"TRUE", "gwVersion":"3.6.012", "projectType":"WS", "epsg":25831, "descript":"ws_36", "name":"ws_36", "author":"postgres", "date":"29-07-2024"}}');"
 
         # Define the example directory
         updates_dir="example/user/ws"
