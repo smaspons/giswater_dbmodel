@@ -46,6 +46,16 @@ jobs:
           sleep 1
         done
 
+    - name: Install PostGIS and pgRouting
+      run: |
+        # Install PostGIS and pgRouting extensions
+        apt-get update
+        apt-get install -y postgis postgresql-15-postgis-3 postgresql-15-pgrouting
+
+        # Enable PostGIS and pgRouting extensions in the database
+        psql -h localhost -U postgres -d giswater_test_db -c "CREATE EXTENSION postgis;"
+        psql -h localhost -U postgres -d giswater_test_db -c "CREATE EXTENSION pgrouting;"
+
     - name: Replace variables in SQL files
       run: python .github/workflows/replace_vars.py
 
@@ -86,5 +96,32 @@ jobs:
       env:
         PGPASSWORD: postgres
       run: |
-        # Add any SQL checks or verifications here
-        psql -h localhost -U postgres -d giswater_test_db -c '\dt'
+        # Check the presence of tables
+        tables=$(psql -h localhost -U postgres -d giswater_test_db -t -c '\dt')
+        if [ -z "$tables" ]; then
+          echo "No tables found in the database."
+          exit 1
+        else
+          echo "Tables found:"
+          echo "$tables"
+        fi
+
+        # Check PostGIS version
+        postgis_version=$(psql -h localhost -U postgres -d giswater_test_db -t -c "SELECT postgis_full_version();")
+        if [ -z "$postgis_version" ]; then
+          echo "PostGIS extension not found or not installed correctly."
+          exit 1
+        else
+          echo "PostGIS version:"
+          echo "$postgis_version"
+        fi
+
+        # Check pgRouting version
+        pgrouting_version=$(psql -h localhost -U postgres -d giswater_test_db -t -c "SELECT * FROM pgr_version();")
+        if [ -z "$pgrouting_version" ]; then
+          echo "pgRouting extension not found or not installed correctly."
+          exit 1
+        else
+          echo "pgRouting version:"
+          echo "$pgrouting_version"
+        fi
