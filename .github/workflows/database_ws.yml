@@ -10,20 +10,20 @@ jobs:
   setup-and-test-db:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:latest
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_DB: giswater_test_db
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    # services:
+    #   postgres:
+    #     image: postgres:latest
+    #     ports:
+    #       - 5432:5432
+    #     env:
+    #       POSTGRES_DB: giswater_test_db
+    #       POSTGRES_USER: postgres
+    #       POSTGRES_PASSWORD: postgres
+    #     options: >-
+    #       --health-cmd "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
+    #       --health-interval 10s
+    #       --health-timeout 5s
+    #       --health-retries 5
 
     steps:
     - name: Checkout repository
@@ -39,12 +39,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r .github/workflows/requirements.txt
 
-    - name: Wait for PostgreSQL to be ready
-      run: |
-        echo "Waiting for PostgreSQL to be ready..."
-        while ! pg_isready -h localhost -p 5432 -U postgres; do
-          sleep 1
-        done
+    # - name: Wait for PostgreSQL to be ready
+    #   run: |
+    #     echo "Waiting for PostgreSQL to be ready..."
+    #     while ! pg_isready -h localhost -p 5432 -U postgres; do
+    #       sleep 1
+    #     done
 
     - name: Setup PostgreSQL and PostGIS for Linux/macOS/Windows
       uses: nyurik/action-setup-postgis@v2.1
