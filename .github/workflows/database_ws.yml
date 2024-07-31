@@ -37,7 +37,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r .github/workflows/requirements.txt
+        pip install -r test/requirements.txt
 
     # - name: Wait for PostgreSQL to be ready
     #   run: |
@@ -60,85 +60,12 @@ jobs:
         psql -h localhost -U postgres -d giswater_test_db -c 'CREATE EXTENSION postgis_raster;'
 
     - name: Replace variables in SQL files
-      run: python .github/workflows/replace_vars.py
+      run: python test/replace_vars.py
 
     - name: Create sample schema
       env:
         PGPASSWORD: postgres
-      run: |
-        # set -e  # Exit immediately if a command exits with a non-zero status
-
-        # Define the root directories to process
-        root_directories=("utils" "ws" "i18n/en_US")
-
-        # Function to execute SQL files and handle errors
-        execute_sql() {
-          local file=$1
-          echo "Executing $file..."
-            # Check if the file path contains "fct", "ftrg", or "trg"
-            if [[ "$file" != *"fct"* && "$file" != *"ftrg"* && "$file" != *"trg"* ]]; then
-              # If not, include the -v ON_ERROR_STOP=1 option
-              output=$(psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d giswater_test_db -f "$file" 2>&1)
-            else
-              # Otherwise, do not include the option
-              output=$(psql -h localhost -U postgres -d giswater_test_db -f "$file" 2>&1)
-            fi
-          echo "Output: $output"
-          # Check the exit status of the psql command
-          if [ $? -ne 0 ]; then
-              # Print the captured output
-              echo "Error executing $file"
-              echo "Output:"
-              echo "$output"
-              exit 1
-          fi
-        }
-
-        # Process each root directory and its subdirectories
-        for root_dir in "${root_directories[@]}"; do
-          echo "Processing root directory: $root_dir"
-          find "$root_dir" -type f -name "*.sql" | sort | grep -v "ud_" | while read -r file; do
-            execute_sql "$file"
-          done
-        done
-
-        # Define the base updates directory
-        updates_dir="updates/36"
-
-        # Check if the updates directory exists
-        if [ -d "$updates_dir" ]; then
-          # Process "utils" and "ws" subdirectories within updates_dir
-          find "$updates_dir" -type d -name "utils" -o -name "ws" | sort | while read -r subdir; do
-            echo "Processing directory: $subdir"
-            find "$subdir" -type f -name "*.sql" | sort | grep -v "ud_" | while read -r file; do
-              execute_sql "$file"
-            done
-          done
-        else
-          echo "Directory $updates_dir does not exist"
-        fi
-
-        # child views
-        execute_sql "childviews/en_US/ws_schema_model.sql"
-
-        # execute lastprocess
-        psql -h localhost -U postgres -d giswater_test_db -c "SELECT ws_36.gw_fct_admin_schema_lastprocess('{\"client\":{\"device\":4, \"lang\":\"en_US\"}, \"data\":{\"isNewProject\":\"TRUE\", \"gwVersion\":\"3.6.012\", \"projectType\":\"WS\", \"epsg\":25831, \"descript\":\"ws_36\", \"name\":\"ws_36\", \"author\":\"postgres\", \"date\":\"29-07-2024\"}}');"
-
-        # Define the example directory
-        updates_dir="example/user/ws"
-
-        # Check if the updates directory exists
-        if [ -d "$updates_dir" ]; then
-          # Process "utils" and "ws" subdirectories within updates_dir
-          find "$updates_dir" -type d | sort | while read -r subdir; do
-            echo "Processing directory: $subdir"
-            find "$subdir" -type f -name "*.sql" | sort | grep -v "ud_" | while read -r file; do
-              execute_sql "$file"
-            done
-          done
-        else
-          echo "Directory $updates_dir does not exist"
-        fi
+      run: python test/execute_sql_files.py
 
     - name: Verify Database
       env:
