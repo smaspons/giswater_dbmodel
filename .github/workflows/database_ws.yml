@@ -65,7 +65,7 @@ jobs:
     - name: Create sample schema
       env:
         PGPASSWORD: postgres
-      run: python test/execute_sql_files.py
+      run: python test/execute_sql_files.py ws
 
     - name: Verify Database
       env:
