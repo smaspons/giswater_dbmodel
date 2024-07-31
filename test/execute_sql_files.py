@@ -1,7 +1,6 @@
 import os
 import argparse
 import psycopg2
-from psycopg2 import sql
 
 
 def execute_sql_file(conn, file_path):
